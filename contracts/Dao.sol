@@ -16,11 +16,13 @@ error VotingProcess();
 error ProposalNotExist();
 error AlreadyVoted();
 error VotingFinished();
+error AlreadyFinished();
 
 /**
     @title smart contract for DAO governance
     @author Valeria Timofeeva
  */
+
 contract DAO is ERC20 {
     address public chairPerson;
     uint256 public nextId;
@@ -90,6 +92,9 @@ contract DAO is ERC20 {
         minimumQuorum = _minimumQuorum;
     }
 
+    /// @dev Calculate quorum
+    /// @param percent of result
+    /// @param tokens amount
     function calculateQuorum(uint256 percent, uint256 tokens)
         private
         pure
@@ -157,12 +162,15 @@ contract DAO is ERC20 {
         if (_endTime < block.timestamp) revert VotingFinished();
 
         Stake memory _stake = votingPower[msg.sender];
-
         if (_vote) {
             proposal.agreement += _stake.amount;
         } else {
             proposal.disagreement += _stake.amount;
         }
+
+        ///extend the locked period if proposal not the only one
+        if (_endTime > _stake.lockedTime)
+            votingPower[msg.sender].lockedTime = _endTime;
 
         proposal.voters[msg.sender] = true;
         emit Voted(proposalId, msg.sender, _vote);
@@ -200,8 +208,21 @@ contract DAO is ERC20 {
     /// @dev Finish current proposal
     /// @param proposalId id of proposal
     function finishProposal(uint256 proposalId) external {
-        if () 
+        if (proposalId >= nextId) revert ProposalNotExist();
 
-        emit ProposalFinished();
+        Proposal storage proposal = proposals[proposalId];
+        if (block.timestamp < proposal.endTime) revert VotingProcess();
+        if (proposal.isFinished) revert AlreadyFinished();
+
+        if (proposal.agreement + proposal.disagreement < proposal.minimumQuorum)
+            emit ProposalFinished(proposalId, false);
+
+        if (proposal.disagreement >= proposal.agreement) {
+            emit ProposalFinished(proposalId, false);
+        } else {
+            (bool success, ) = proposal.recipient.call(proposal.instruction);
+            emit ProposalFinished(proposalId, success);
+        }
+        proposal.isFinished = true;
     }
 }
