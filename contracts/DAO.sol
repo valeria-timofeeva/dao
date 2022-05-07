@@ -10,7 +10,7 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
     @dev Errors
  */
 
-error NotChairPerson();
+error NotChairperson();
 error IncorrectQuorum();
 error VotingProcess();
 error ProposalNotExist();
@@ -24,7 +24,7 @@ error AlreadyFinished();
  */
 
 contract DAO is ERC20 {
-    address public chairPerson;
+    address public chairperson;
     uint256 public nextId;
     uint256 public minimumQuorum;
     uint256 public debatingPeriodDuration;
@@ -67,19 +67,18 @@ contract DAO is ERC20 {
     }
 
     constructor(
-        address _chairPerson,
         uint256 _minimumQuorum,
         uint256 _debatingPeriodDuration,
         uint256 _daoTokens
     ) ERC20("DAOToken", "DAT") {
         minimumQuorum = _minimumQuorum;
         debatingPeriodDuration = _debatingPeriodDuration;
-        chairPerson = _chairPerson;
+        chairperson = msg.sender;
         _mint(msg.sender, _daoTokens);
     }
 
-    modifier onlyChairPerson(address sender) {
-        if (sender != chairPerson) revert NotChairPerson();
+    modifier onlyChairperson(address sender) {
+        if (sender != chairperson) revert NotChairperson();
         _;
     }
 
@@ -87,7 +86,7 @@ contract DAO is ERC20 {
     /// @param _minimumQuorum for finish proposal
     function setMinimumQuorum(uint256 _minimumQuorum)
         external
-        onlyChairPerson(msg.sender)
+        onlyChairperson(msg.sender)
     {
         minimumQuorum = _minimumQuorum;
     }
@@ -112,7 +111,7 @@ contract DAO is ERC20 {
     /// @param _debatingPeriodDuration duration of period debating
     function setDebatingPeriod(uint256 _debatingPeriodDuration)
         external
-        onlyChairPerson(msg.sender)
+        onlyChairperson(msg.sender)
     {
         debatingPeriodDuration = _debatingPeriodDuration;
     }
@@ -188,7 +187,7 @@ contract DAO is ERC20 {
         bytes calldata _instruction,
         address _recipient,
         string memory _description
-    ) external onlyChairPerson(msg.sender) {
+    ) external onlyChairperson(msg.sender) {
         Proposal storage proposal = proposals[nextId];
         proposal.minimumQuorum = minimumQuorum;
         proposal.endTime = block.timestamp + debatingPeriodDuration;
