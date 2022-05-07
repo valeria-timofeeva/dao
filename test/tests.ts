@@ -4,7 +4,6 @@ import { expect } from "chai";
 import { BigNumber } from "ethers";
 import { parseUnits } from "ethers/lib/utils";
 import { ethers, network } from "hardhat";
-import { beforeEach } from "mocha";
 import { DAO } from "../typechain";
 
 describe("Dao governance", function () {
@@ -16,8 +15,8 @@ describe("Dao governance", function () {
   const TOTAL_SUPPLY = parseUnits("10000");
   const QUORUM_PERCENT = BigNumber.from(75);
   const VOTES: BigNumber = calculateQuorum(QUORUM_PERCENT, TOTAL_SUPPLY);
-  const PERIOD = BigNumber.from(60 * 60 * 24); // One day
-  const PROPOSAL_DESCRIPTION = "Invest treasure funds";
+  const PERIOD = BigNumber.from(43200);
+  const DESCRIPTION = "Dao description";
 
   before(async () => {
     [chairperson, user1, user2] = await ethers.getSigners();
