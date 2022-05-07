@@ -69,5 +69,21 @@ describe("Dao governance", function () {
         );
       });
     });
+    describe("setDebatingPeriod", function () {
+      it("Should set debating period", async () => {
+        await expect(daoContract.connect(user1).setDebatingPeriod(BigNumber.from("50000"))).to.be.revertedWith("NotChairperson");
+
+        await daoContract.setDebatingPeriod(BigNumber.from("50000"));
+        expect(await daoContract.debatingPeriodDuration()).to.be.equal("50000");
+      });
+    });
+  });
+
+  describe("Staking", function () {
+    const depositAmount = parseUnits("1000");
+    describe("stake", async () => {
+      it("Should accept deposit", async function () {
+      });
+    });
   });
 });

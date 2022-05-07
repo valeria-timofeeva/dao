@@ -71,7 +71,7 @@ contract DAO is ERC20 {
         uint256 _debatingPeriodDuration,
         uint256 _daoTokens
     ) ERC20("DAOToken", "DAT") {
-        minimumQuorum = _minimumQuorum;
+        minimumQuorum = calculateQuorum(_minimumQuorum, _daoTokens);
         debatingPeriodDuration = _debatingPeriodDuration;
         chairperson = msg.sender;
         _mint(msg.sender, _daoTokens);
@@ -83,12 +83,12 @@ contract DAO is ERC20 {
     }
 
     /// @dev Set minimum quorum
-    /// @param _minimumQuorum for finish proposal
-    function setMinimumQuorum(uint256 _minimumQuorum)
+    /// @param percent of votes for finish proposal
+    function setMinimumQuorum(uint256 percent)
         external
         onlyChairperson(msg.sender)
     {
-        minimumQuorum = _minimumQuorum;
+        minimumQuorum = calculateQuorum(percent, totalSupply());
     }
 
     /// @dev Calculate quorum
@@ -102,7 +102,7 @@ contract DAO is ERC20 {
         if (percent == 0) {
             quorum = 0;
         }
-        if (quorum > 100) revert IncorrectQuorum();
+        if (percent > 100) revert IncorrectQuorum();
 
         quorum = (tokens * percent) / 100;
     }
