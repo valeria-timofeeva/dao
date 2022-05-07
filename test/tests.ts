@@ -13,7 +13,7 @@ describe("Dao governance", function () {
   let proposalCallData: string;
 
   const TOTAL_SUPPLY = parseUnits("10000");
-  const QUORUM_PERCENT = BigNumber.from(75);
+  const QUORUM_PERCENT = BigNumber.from(60);
   const VOTES: BigNumber = calculateQuorum(QUORUM_PERCENT, TOTAL_SUPPLY);
   const PERIOD = BigNumber.from(43200);
   const DESCRIPTION = "Dao description";
@@ -21,7 +21,7 @@ describe("Dao governance", function () {
   before(async () => {
     [chairperson, user1, user2] = await ethers.getSigners();
 
-    const DaoFactory = await ethers.getContractFactory("Dao");
+    const DaoFactory = await ethers.getContractFactory("DAO");
     daoContract = await DaoFactory.deploy(QUORUM_PERCENT, PERIOD, TOTAL_SUPPLY);
     await daoContract.deployed();
     clean = await network.provider.send("evm_snapshot");
@@ -45,13 +45,27 @@ describe("Dao governance", function () {
       return token.mul(percent).div(100);
     }
   }
-  describe("Deploy", function () {
-    describe("#constructor()", function () {
-      it("Should setup initial parameters correctly", async () => {
+  describe("Config functions", function () {
+    describe("", function () {
+      it("Set parameters", async () => {
         expect(await daoContract.debatingPeriodDuration()).to.be.equal(PERIOD);
         expect(await daoContract.chairperson()).to.be.equal(chairperson.address);
         expect(await daoContract.minimumQuorum()).to.be.equal(
           calculateQuorum(QUORUM_PERCENT, TOTAL_SUPPLY)
+        );
+      });
+    });
+
+    describe("setQuorum", function () {
+      it("Should set quorum", async () => {
+        await expect(daoContract.connect(user1).setMinimumQuorum(BigNumber.from("0"))).to.be.revertedWith("NotChairperson");
+
+        await expect(daoContract.setMinimumQuorum(BigNumber.from(101))).to.be.revertedWith(
+          "IncorrectQuorum");
+
+        await daoContract.setMinimumQuorum(BigNumber.from("0"));
+        expect(await daoContract.minimumQuorum()).to.be.equal(
+          calculateQuorum(BigNumber.from("0"), TOTAL_SUPPLY)
         );
       });
     });
