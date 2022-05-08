@@ -116,13 +116,6 @@ contract DAO is ERC20 {
         debatingPeriodDuration = _debatingPeriodDuration;
     }
 
-    /// @dev Mint tokens
-    /// @param to address for mint
-    /// @param amount of tokens
-    function mint(address to, uint256 amount) public {
-        _mint(to, amount);
-    }
-
     /**
         @dev Staking
      */
