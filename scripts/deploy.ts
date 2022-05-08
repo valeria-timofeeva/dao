@@ -4,12 +4,12 @@ import * as fs from "fs";
 
 async function main() {
 
-  const Dao = await ethers.getContractFactory("Dao");
+  const Dao = await ethers.getContractFactory("DAO");
   const dao = await Dao.deploy(60, 43200,parseUnits("10000"));
   await dao.deployed();
 
   const contract = {
-    daoAddress: dao.address,
+    daoAddress: dao.address
   };
 
   const filePath = "./tasks/deploy.json";
