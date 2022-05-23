@@ -58,9 +58,9 @@ contract DAO is ERC20 {
         mapping(address => bool) voters;
         uint256 agreement;
         uint256 disagreement;
-        bool isFinished;
         uint256 endTime;
         uint256 minimumQuorum;
+        bool isFinished;
         address recipient;
         bytes instruction;
         string description;
